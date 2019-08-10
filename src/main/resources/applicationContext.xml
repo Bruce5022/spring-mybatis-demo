@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.alibaba.com/schema/stat"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.alibaba.com/schema/stat http://www.alibaba.com/schema/stat.xsd">
+
+
+
+    <!--加载jdbc配置-->
+    <context:property-placeholder location="classpath:dbconfig.properties"/>
+
+    <!--连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxActive" value="10"/>
+        <property name="maxWait" value="3000"/>
+    </bean>
+
+    <!--事务配置-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!-- 开启基于注解的事务 -->
+    <tx:annotation-driven/>
+
+    <!--mybatis整合spring,这里创建出SqlSessionFactoryBean -->
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.sky"/>
+        <!-- 此处代替mybatis的全局配置文件,原来的东西可以写这里 -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!--mapper接口扫描-->
+    <!--<mybatis-spring:scan base-package="com.sky.mapper"/>-->
+
+    <!-- 下面是老版的东西  -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.sky.mapper"/>
+    </bean>
+
+
+    <context:component-scan base-package="com.sky"/>
+</beans>
